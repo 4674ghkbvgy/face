@@ -71,11 +71,13 @@ def get_face():
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
-
+        conn = sqlite3.connect('face.db')
+        c = conn.cursor()
         # 使用 SQL 语句查询人脸数据对应的人名
         c.execute("SELECT name FROM faces WHERE face_data=?", (face_data,))
         name = c.fetchone()
-
+        conn.close()  
+        
         cv2.putText(frame, name, (x, y + h + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
 
         # 显示人脸图像
@@ -93,8 +95,7 @@ def get_face():
             # 调用录入人脸对应人名的函数
             record_name(face_data)
         if key & 0xFF == ord('q'):
-            # 关闭数据库连接            
-            conn.close()            
+            # 关闭数据库连接                      
             break
 
 
