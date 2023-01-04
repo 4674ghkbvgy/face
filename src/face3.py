@@ -5,7 +5,7 @@ import sqlite3
 import PIL.Image
 import PIL.ImageTk
 import numpy as np
-
+import pandas as pd
 # Tkinter美化
 from tkinter import ttk
 from ttkbootstrap import Style
@@ -51,7 +51,7 @@ cap = cv2.VideoCapture(0)
 #     # 使用 after() 函数每隔 15 毫秒调用 update_frame()
 #     root.after(15, update_frame)
 
-
+known_face_descriptors= dict()
 # 创建用于录入人脸的函数
 def record_face():
 
@@ -87,15 +87,53 @@ def record_face():
             conn.commit()
             # 关闭数据库连接
             conn.close()
+    global known_face_descriptors
+    known_face_descriptors = get_known_face_descriptors()
 
 
-def compute_distance(face_data1, face_data2):
-    return np.sqrt(
-        np.sum((np.frombuffer(face_data1, np.float64) -
-                np.frombuffer(face_data2, np.float64))**2))
+
+def get_matching_name(face_descriptor):
+    if face_descriptor:
+        matching_name = ''
+        t=3.0
+        # 遍历所有已知的人的特征向量
+        global known_face_descriptors
+        for name, stored_descriptor in known_face_descriptors.items():
+            if len(stored_descriptor)!=0:
+                # 计算当前特征向量和已知的特征向量的差值
+                difference = np.abs(stored_descriptor - face_descriptor).sum()
+                # 如果差值小于 0.6，则表示匹配成功
+                if difference < t:
+                    t=difference
+                    # 记录匹配成功的名字
+                    matching_name = name
+                    if difference<1.5:
+                        break
+        # 返回匹配成功的名字
+        return matching_name,t
+
+#在数据库中获取所有已知的特征向量
+def get_known_face_descriptors():
+    # 创建连接
+    conn = sqlite3.connect('faces.db')
+    # 创建游标
+    cursor = conn.cursor()
+    # 查询数据库
+    cursor.execute('''SELECT name, face_data FROM faces''')
+    # 获取结果
+    results = cursor.fetchall()
+    # 关闭连接
+    conn.close()
+    # 将结果保存到字典中
+    known_face_descriptors = {name: np.frombuffer(face_data, np.float64) for name, face_data in results}
+    # 返回结果
+    return known_face_descriptors
+
 
 
 def detect_face():
+    global known_face_descriptors
+    known_face_descriptors=get_known_face_descriptors()
     while True:
         # 读取人脸图像数据
         ret, frame = cap.read()
@@ -103,9 +141,9 @@ def detect_face():
         # 使用 dlib 检测人脸
         gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         faces = detector(gray)
-        # 创建数据库连接
-        conn = sqlite3.connect('faces.db')
-        cursor = conn.cursor()
+        # # 创建数据库连接
+        # conn = sqlite3.connect('faces.db')
+        # cursor = conn.cursor()
         # 遍历检测到的人脸
         for face in faces:
             # 获取人脸的关键点
@@ -115,27 +153,18 @@ def detect_face():
             face_descriptor = face_rec.compute_face_descriptor(
                 frame, landmarks)
 
-            face_data = np.array(face_descriptor).tobytes()
+            # face_data = np.array(face_descriptor).tobytes()
 
-            cursor.execute(
-                '''SELECT * FROM faces ORDER BY ABS(face_data - ?)''',
-                (face_data, ))
-            result = cursor.fetchone()
-
+            result,n = get_matching_name(face_descriptor)
+            
             x1, y1 = face.left(), face.top()
             x2, y2 = face.right(), face.bottom()
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
             # 获取匹配的置信度
-            # fontStyle = ImageFont.truetype(
-            # "/home/zty/project/moring_check/face/font/simsun.ttc", 32, encoding="utf-8")
             if result:
-                n = np.abs(
-                    np.frombuffer(result[1], np.float64) -
-                    np.frombuffer(face_data, np.float64)).sum()
                 # 在图片上绘制矩形框，并显示人名
-                # if n<4:
-                str = result[0].__str__()
+                str = result.__str__()
                 cv2.putText(
                     frame,
                     str + ",n=" + n.__str__()[:4],
@@ -157,9 +186,6 @@ def detect_face():
         # 将图像显示在 Label 中
         canvas.create_image(0, 0, image=image, anchor=tk.NW)
         canvas.image = image
-        # #显示图像
-        # label.config(image=image)
-        # label.image = image
 
         cv2.imshow('frame', frame)
         # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
@@ -170,9 +196,10 @@ def detect_face():
         
         if key & 0xFF == ord('q'):
             # 关闭数据库连接
-            conn.close()
-            # 关闭数据库连接
+            # conn.close()
             break
+
+
 
 # 刷新 Tkinter 窗口
 root.update()
