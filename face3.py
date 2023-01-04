@@ -20,7 +20,10 @@ face_rec = dlib.face_recognition_model_v1(
 style = Style(theme='darkly')
 root = style.master
 root.title('人脸识别')
-
+# 创建标签
+label = tk.Label(root, text="使用说明:\n先点击识别人脸,如果需要录入人脸在识别窗口中摁”q“键,之后返回主界面输入名字,再点击录入人脸", wraplength=200)
+# 将标签放在窗口中
+label.pack()
 # # 创建显示人脸的画布
 canvas = tk.Canvas(root, width=640, height=480)
 canvas.pack()
@@ -115,7 +118,7 @@ def detect_face():
             face_data = np.array(face_descriptor).tobytes()
 
             cursor.execute(
-                '''SELECT * FROM faces ORDER BY compute_distance(face_data - ?)''',
+                '''SELECT * FROM faces ORDER BY ABS(face_data - ?)''',
                 (face_data, ))
             result = cursor.fetchone()
 
@@ -127,7 +130,6 @@ def detect_face():
             # fontStyle = ImageFont.truetype(
             # "/home/zty/project/moring_check/face/font/simsun.ttc", 32, encoding="utf-8")
             if result:
-                print(1)
                 n = np.abs(
                     np.frombuffer(result[1], np.float64) -
                     np.frombuffer(face_data, np.float64)).sum()
@@ -155,24 +157,22 @@ def detect_face():
         # 将图像显示在 Label 中
         canvas.create_image(0, 0, image=image, anchor=tk.NW)
         canvas.image = image
-        # # 显示图像
-        # # label.config(image=image)
-        # # label.image = image
+        # #显示图像
+        # label.config(image=image)
+        # label.image = image
 
-        # cv2.imshow('frame', frame)
-        # # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
-        # key = cv2.waitKey(0)
-        # if key & 0xFF == ord('r'):
-        #     # 调用录入人脸对应人名的函数
-        #     record_face()
-
-
-#
-# if key & 0xFF == ord('q'):
-#     # 关闭数据库连接
-#     conn.close()
-#     # 关闭数据库连接
-#     break
+        cv2.imshow('frame', frame)
+        # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
+        key = cv2.waitKey(1)
+        if key & 0xFF == ord('r'):
+            # 调用录入人脸对应人名的函数
+            record_face()
+        
+        if key & 0xFF == ord('q'):
+            # 关闭数据库连接
+            conn.close()
+            # 关闭数据库连接
+            break
 
 # 刷新 Tkinter 窗口
 root.update()
