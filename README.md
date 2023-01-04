@@ -10,6 +10,14 @@
 - 将命名后的人脸数据存入数据库
 - 从数据库中快速调用人脸数据
 
+
+##v2.0演示视频
+
+
+https://user-images.githubusercontent.com/72641410/210591526-5eed48ae-f512-4b1e-980b-04616ba9ce86.mp4
+
+
+
 ## 使用
 
 需要安装 Python 3 和以下库：
