@@ -19,7 +19,11 @@
 - sqlite3
 - tkinter
 
-运行 `face_recognition.py` 文件即可开始使用。
+运行 `src/face3.py` 文件即可开始使用。
+
+```
+ python3 ./src/face3.py
+```
 
 ## 许可证
 
