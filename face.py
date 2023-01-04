@@ -28,7 +28,7 @@ def record_name(face_data):
     conn.commit()
     # 关闭数据库连接
     conn.close()
-
+xxx
 
 def get_face():
     # 使用摄像头捕获人脸图像
@@ -40,10 +40,14 @@ def get_face():
         ret, frame = cap.read()
         
         # 使用 Haar 特征分类器检测人脸
-        faces = face_cascade.detectMultiScale(frame, 1.3, 5)
+        # faces = face_cascade.detectMultiScale(frame, 1.3, 5)
 
+        # faces = face_cascade.detectMultiScale(frame, 1.3, 2)
+        
+        faces = face_cascade.detectMultiScale(frame, 1.3, 2)
         # 使用 OpenCV 将人脸图像转换为字符串
         success, encoded_image = cv2.imencode('.jpg', frame)
+
         # 将字符串转换为 bytes 类型
         face_data = encoded_image.tobytes()
 
