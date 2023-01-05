@@ -132,73 +132,130 @@ def get_known_face_descriptors():
 
 
 def detect_face():
-    global known_face_descriptors
-    known_face_descriptors=get_known_face_descriptors()
-    while True:
-        # 读取人脸图像数据
-        ret, frame = cap.read()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        # 使用 dlib 检测人脸
-        gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-        faces = detector(gray)
-        # # 创建数据库连接
-        # conn = sqlite3.connect('faces.db')
-        # cursor = conn.cursor()
-        # 遍历检测到的人脸
-        for face in faces:
-            # 获取人脸的关键点
-            landmarks = predictor(gray, face)
+    # 读取人脸图像数据
+    ret, frame = cap.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # 使用 dlib 检测人脸
+    gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+    faces = detector(gray)
 
-            # 计算人脸的特征向量
-            face_descriptor = face_rec.compute_face_descriptor(
-                frame, landmarks)
+    # 遍历检测到的人脸
+    for face in faces:
+        # 获取人脸的关键点
+        landmarks = predictor(gray, face)
 
-            # face_data = np.array(face_descriptor).tobytes()
+        # 计算人脸的特征向量
+        face_descriptor = face_rec.compute_face_descriptor(
+            frame, landmarks)
 
-            result,n = get_matching_name(face_descriptor)
-            
-            x1, y1 = face.left(), face.top()
-            x2, y2 = face.right(), face.bottom()
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-            # 获取匹配的置信度
-            if result:
-                # 在图片上绘制矩形框，并显示人名
-                str = result.__str__()
-                cv2.putText(
-                    frame,
-                    str + ",n=" + n.__str__()[:4],
-                    (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.8,
-                    (0, 255, 0),
-                    2,
-                )
-                # else:
-                # cv2.putText(frame, "unknow", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2,)
-
-        # 将图片转换为 PIL 图像
-        image = PIL.Image.fromarray(frame)
-
-        # 将 PIL 图像转换为 Tkinter 图像
-        image = PIL.ImageTk.PhotoImage(image)
-
-        # 将图像显示在 Label 中
-        canvas.create_image(0, 0, image=image, anchor=tk.NW)
-        canvas.image = image
-
-        cv2.imshow('frame', frame)
-        # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
-        key = cv2.waitKey(1)
-        if key & 0xFF == ord('r'):
-            # 调用录入人脸对应人名的函数
-            record_face()
+        result,n = get_matching_name(face_descriptor)
         
-        if key & 0xFF == ord('q'):
-            # 关闭数据库连接
-            # conn.close()
-            break
+        x1, y1 = face.left(), face.top()
+        x2, y2 = face.right(), face.bottom()
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
+        # 获取匹配的置信度
+        if result:
+            # 在图片上绘制矩形框，并显示人名
+            str = result.__str__()
+            cv2.putText(
+                frame,
+                str + ",n=" + n.__str__()[:4],
+                (x1, y1 - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (0, 255, 0),
+                2,
+            )
+            # else:
+            # cv2.putText(frame, "unknow", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2,)
+
+    # 将图片转换为 PIL 图像
+    image = PIL.Image.fromarray(frame)
+
+    # 将 PIL 图像转换为 Tkinter 图像
+    image = PIL.ImageTk.PhotoImage(image)
+
+    # 将图像显示在 Label 中
+    canvas.create_image(0, 0, image=image, anchor=tk.NW)
+    canvas.image = image
+    root.after(30, detect_face)
+    # cv2.imshow('frame', frame)
+    # # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
+    # key = cv2.waitKey(1)
+    # if key & 0xFF == ord('r'):
+    #     # 调用录入人脸对应人名的函数
+    #     record_face()
+    
+    # if key & 0xFF == ord('q'):
+    #     # 关闭数据库连接
+    #     # conn.close()
+    #     break
+
+
+# def detect_face():
+#     global known_face_descriptors
+#     known_face_descriptors=get_known_face_descriptors()
+#     while True:
+#         # 读取人脸图像数据
+#         ret, frame = cap.read()
+#         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#         # 使用 dlib 检测人脸
+#         gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+#         faces = detector(gray)
+
+#         # 遍历检测到的人脸
+#         for face in faces:
+#             # 获取人脸的关键点
+#             landmarks = predictor(gray, face)
+
+#             # 计算人脸的特征向量
+#             face_descriptor = face_rec.compute_face_descriptor(
+#                 frame, landmarks)
+
+#             result,n = get_matching_name(face_descriptor)
+            
+#             x1, y1 = face.left(), face.top()
+#             x2, y2 = face.right(), face.bottom()
+#             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+#             # 获取匹配的置信度
+#             if result:
+#                 # 在图片上绘制矩形框，并显示人名
+#                 str = result.__str__()
+#                 cv2.putText(
+#                     frame,
+#                     str + ",n=" + n.__str__()[:4],
+#                     (x1, y1 - 10),
+#                     cv2.FONT_HERSHEY_SIMPLEX,
+#                     0.8,
+#                     (0, 255, 0),
+#                     2,
+#                 )
+#                 # else:
+#                 # cv2.putText(frame, "unknow", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2,)
+
+#         # 将图片转换为 PIL 图像
+#         image = PIL.Image.fromarray(frame)
+
+#         # 将 PIL 图像转换为 Tkinter 图像
+#         image = PIL.ImageTk.PhotoImage(image)
+
+#         # 将图像显示在 Label 中
+#         canvas.create_image(0, 0, image=image, anchor=tk.NW)
+#         canvas.image = image
+
+#         cv2.imshow('frame', frame)
+#         # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
+#         key = cv2.waitKey(1)
+#         if key & 0xFF == ord('r'):
+#             # 调用录入人脸对应人名的函数
+#             record_face()
+        
+#         if key & 0xFF == ord('q'):
+#             # 关闭数据库连接
+#             # conn.close()
+#             break
 
 
 # 刷新 Tkinter 窗口
@@ -216,6 +273,8 @@ def clean_table():
 
     # 关闭数据库连接
     conn.close()
+    global known_face_descriptors
+    known_face_descriptors = get_known_face_descriptors()
 
 
 # 创建“录入人脸”按钮
@@ -240,5 +299,10 @@ btn1.pack(side='right', padx=5, pady=10)
 # detect_face()
 
 # 进入 Tkinter 消息循环
+# 使用 after() 函数每隔 15 毫秒调用 update_frame()
+
 # update_frame()
+
+
+detect_face()
 root.mainloop()
