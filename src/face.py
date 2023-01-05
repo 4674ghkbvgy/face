@@ -180,17 +180,7 @@ def detect_face():
     canvas.create_image(0, 0, image=image, anchor=tk.NW)
     canvas.image = image
     root.after(30, detect_face)
-    # cv2.imshow('frame', frame)
-    # # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
-    # key = cv2.waitKey(1)
-    # if key & 0xFF == ord('r'):
-    #     # 调用录入人脸对应人名的函数
-    #     record_face()
-    
-    # if key & 0xFF == ord('q'):
-    #     # 关闭数据库连接
-    #     # conn.close()
-    #     break
+
 
 
 # def detect_face():
