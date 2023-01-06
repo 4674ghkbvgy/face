@@ -19,7 +19,7 @@ face_rec = dlib.face_recognition_model_v1(
 cap = cv2.VideoCapture(0)
 
 known_face_descriptors= dict()
-real_flag=False
+real_face=False
 
 # 创建用于录入人脸的函数
 def record_face():
@@ -147,16 +147,13 @@ def detect_face():
         if result:
             # 在图片上绘制矩形框，并显示人名
             str = result.__str__()
-            global real_flag 
-            if real_flag :
+            global real_face
+            if real_face :
                 flag=is_real_face(gray)
-                print(real_flag)
                 if flag==True:
-
                     cv2.putText(
                         frame,
-                        str + ", "+"REAL PERSON",
-                        (x1, y1 - 10),
+                        str + ",n=" + n.__str__()[:4]+"REAL PERSON",
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.8,
                         (0, 255, 0),
@@ -165,7 +162,7 @@ def detect_face():
                 else:
                     cv2.putText(
                         frame,
-                        str + ", "+"PICTURE!",
+                        str + ",n=" + n.__str__()[:4]+"PICTURE!",
                         (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.8,
@@ -176,7 +173,6 @@ def detect_face():
                 cv2.putText(
                     frame,
                     str + ",n=" + n.__str__()[:4],
-                    (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.8,
                     (0, 255, 0),
@@ -283,8 +279,8 @@ def clean_table():
 
 
 def real_face():
-    global real_flag
-    real_flag=not real_flag
+    global real_face
+    real_face=not real_face
 
 if __name__ == '__main__':
 
@@ -294,7 +290,7 @@ if __name__ == '__main__':
     root = style.master
     root.title('人脸识别')
     # 创建标签
-    label = tk.Label(root, text="使用说明:\n输入人名后点击录入人名会把当前识别到的人录入数据库，点击生物识别后会识别是真人还是图片，再点一次取消生物识别", wraplength=200)
+    label = tk.Label(root, text="使用说明:\n先点击识别人脸,如果需要录入人脸在识别窗口中摁”q“键,之后返回主界面输入名字,再点击录入人脸", wraplength=200)
     # 将标签放在窗口中
     label.pack()
     # # 创建显示人脸的画布
@@ -326,10 +322,7 @@ if __name__ == '__main__':
                     text="生物识别",
                     style='success.TButton',
                     command=real_face)
-    btn1.pack(side='right', padx=5, pady=10)                
-    exit_button = ttk.Button(root, text='Exit', command=root.destroy)
-    exit_button.pack()
+    btn1.pack(side='right', padx=5, pady=10)
     # 开始检测人脸
-    known_face_descriptors = get_known_face_descriptors()
     detect_face()
     root.mainloop()
