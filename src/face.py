@@ -198,7 +198,6 @@ def detect_face():
     root.after(30, detect_face)
 
 
-
 # def detect_face():
 #     global known_face_descriptors
 #     known_face_descriptors=get_known_face_descriptors()
@@ -304,7 +303,6 @@ if __name__ == '__main__':
     label.pack(side='left')
     entry = tk.Entry(root, width=20)
     entry.pack(side='left')
-
 
     # 刷新 Tkinter 窗口
     root.update()
