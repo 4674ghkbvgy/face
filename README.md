@@ -50,7 +50,11 @@ https://user-images.githubusercontent.com/72641410/210591526-5eed48ae-f512-4b1e-
 
 ## 正式版（v3.5）
 ### 演示视频
-file:///home/zty/è§†é¢‘/2023-01-06 23-40-34.mp4
+
+
+https://user-images.githubusercontent.com/72641410/211047457-bafeb0ef-7d89-467c-9820-b03196b6429b.mp4
+
+
 
 
 
