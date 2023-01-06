@@ -25,7 +25,7 @@
 - 从数据库中快速调用人脸数据并识别人脸姓名
 
 
-## v2.0演示视频
+### v2.0演示视频
 
 
 https://user-images.githubusercontent.com/72641410/210591526-5eed48ae-f512-4b1e-980b-04616ba9ce86.mp4
@@ -48,7 +48,9 @@ https://user-images.githubusercontent.com/72641410/210591526-5eed48ae-f512-4b1e-
 
 - 文件格式不够规范
 
-
+## 正式版（v3.5）
+### 演示视频
+file:///home/zty/è§†é¢‘/2023-01-06 23-40-34.mp4
 
 
 
@@ -61,10 +63,10 @@ https://user-images.githubusercontent.com/72641410/210591526-5eed48ae-f512-4b1e-
 - sqlite3
 - tkinter
 
-运行 `src/face3.py` 文件即可开始使用。
+运行 `src/face.py` 文件即可开始使用。
 
 ```
- python3 ./src/face3.py
+ python3 ./src/face.py
 ```
 
 ## 许可证
