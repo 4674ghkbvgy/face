@@ -19,7 +19,23 @@ face_rec = dlib.face_recognition_model_v1(
 cap = cv2.VideoCapture(0)
 
 known_face_descriptors= dict()
-real_face=False
+real_flag=False
+
+# 创建 Tkinter 界面
+style = Style(theme='darkly')
+root = style.master
+root.title('人脸识别')
+# 创建标签
+label = tk.Label(root, text="使用说明:\n输入人名后点击录入人名会把当前识别到的人录入数据库，点击生物识别后会识别是真人还是图片，再点一次取消生物识别", wraplength=200)
+# 将标签放在窗口中
+label.pack()
+# # 创建显示人脸的画布
+canvas = tk.Canvas(root, width=640, height=480)
+canvas.pack()
+label = tk.Label(root, text='输入名字')
+label.pack(side='left')
+entry = tk.Entry(root, width=20)
+entry.pack(side='left')
 
 # 创建用于录入人脸的函数
 def record_face():
@@ -120,7 +136,10 @@ def is_real_face(face_image):
         return True
 
 
+
 def detect_face():
+    global known_face_descriptors
+    known_face_descriptors = get_known_face_descriptors()
     # 读取人脸图像数据
     ret, frame = cap.read()
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -147,13 +166,16 @@ def detect_face():
         if result:
             # 在图片上绘制矩形框，并显示人名
             str = result.__str__()
-            global real_face
-            if real_face :
+            global real_flag 
+            if real_flag :
                 flag=is_real_face(gray)
+                print(real_flag)
                 if flag==True:
+
                     cv2.putText(
                         frame,
-                        str + ",n=" + n.__str__()[:4]+"REAL PERSON",
+                        str + ", "+"REAL PERSON",
+                        (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.8,
                         (0, 255, 0),
@@ -162,7 +184,7 @@ def detect_face():
                 else:
                     cv2.putText(
                         frame,
-                        str + ",n=" + n.__str__()[:4]+"PICTURE!",
+                        str + ", "+"PICTURE!",
                         (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.8,
@@ -173,14 +195,12 @@ def detect_face():
                 cv2.putText(
                     frame,
                     str + ",n=" + n.__str__()[:4],
+                    (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.8,
                     (0, 255, 0),
                     2,
                 )
-                
-            # else:
-            # cv2.putText(frame, "unknow", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2,)
 
     # 将图片转换为 PIL 图像
     image = PIL.Image.fromarray(frame)
@@ -191,74 +211,7 @@ def detect_face():
     # 将图像显示在 Label 中
     canvas.create_image(0, 0, image=image, anchor=tk.NW)
     canvas.image = image
-    root.after(30, detect_face)
-
-
-
-# def detect_face():
-#     global known_face_descriptors
-#     known_face_descriptors=get_known_face_descriptors()
-#     while True:
-#         # 读取人脸图像数据
-#         ret, frame = cap.read()
-#         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-#         # 使用 dlib 检测人脸
-#         gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-#         faces = detector(gray)
-
-#         # 遍历检测到的人脸
-#         for face in faces:
-#             # 获取人脸的关键点
-#             landmarks = predictor(gray, face)
-
-#             # 计算人脸的特征向量
-#             face_descriptor = face_rec.compute_face_descriptor(
-#                 frame, landmarks)
-
-#             result,n = get_matching_name(face_descriptor)
-            
-#             x1, y1 = face.left(), face.top()
-#             x2, y2 = face.right(), face.bottom()
-#             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-#             # 获取匹配的置信度
-#             if result:
-#                 # 在图片上绘制矩形框，并显示人名
-#                 str = result.__str__()
-#                 cv2.putText(
-#                     frame,
-#                     str + ",n=" + n.__str__()[:4],
-#                     (x1, y1 - 10),
-#                     cv2.FONT_HERSHEY_SIMPLEX,
-#                     0.8,
-#                     (0, 255, 0),
-#                     2,
-#                 )
-#                 # else:
-#                 # cv2.putText(frame, "unknow", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2,)
-
-#         # 将图片转换为 PIL 图像
-#         image = PIL.Image.fromarray(frame)
-
-#         # 将 PIL 图像转换为 Tkinter 图像
-#         image = PIL.ImageTk.PhotoImage(image)
-
-#         # 将图像显示在 Label 中
-#         canvas.create_image(0, 0, image=image, anchor=tk.NW)
-#         canvas.image = image
-
-#         cv2.imshow('frame', frame)
-#         # 如果用户按下 'r' 键，调用录入人脸对应人名的函数
-#         key = cv2.waitKey(1)
-#         if key & 0xFF == ord('r'):
-#             # 调用录入人脸对应人名的函数
-#             record_face()
-        
-#         if key & 0xFF == ord('q'):
-#             # 关闭数据库连接
-#             # conn.close()
-#             break
-
+    root.after(40, detect_face)
 
 
 
@@ -279,50 +232,5 @@ def clean_table():
 
 
 def real_face():
-    global real_face
-    real_face=not real_face
-
-if __name__ == '__main__':
-
-
-    # 创建 Tkinter 界面
-    style = Style(theme='darkly')
-    root = style.master
-    root.title('人脸识别')
-    # 创建标签
-    label = tk.Label(root, text="使用说明:\n先点击识别人脸,如果需要录入人脸在识别窗口中摁”q“键,之后返回主界面输入名字,再点击录入人脸", wraplength=200)
-    # 将标签放在窗口中
-    label.pack()
-    # # 创建显示人脸的画布
-    canvas = tk.Canvas(root, width=640, height=480)
-    canvas.pack()
-    label = tk.Label(root, text='输入名字')
-    label.pack(side='left')
-    entry = tk.Entry(root, width=20)
-    entry.pack(side='left')
-
-
-    # 刷新 Tkinter 窗口
-    root.update()
-
-    # 创建“录入人脸”按钮
-    record_button = ttk.Button(root,
-                            text='录入人脸',
-                            style='success.Outline.TButton',
-                            command=record_face)
-    record_button.pack(side='left', padx=5, pady=10)
-
-    btn = ttk.Button(root,
-                    text="清空数据库",
-                    style='success.TButton',
-                    command=clean_table)
-    btn.pack(side='right', padx=5, pady=10)
-
-    btn1 = ttk.Button(root,
-                    text="生物识别",
-                    style='success.TButton',
-                    command=real_face)
-    btn1.pack(side='right', padx=5, pady=10)
-    # 开始检测人脸
-    detect_face()
-    root.mainloop()
+    global real_flag
+    real_flag=not real_flag
